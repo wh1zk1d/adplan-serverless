@@ -11,7 +11,7 @@ const AllClients = () => {
   const { isLoading, error, data } = useQuery('fetchClients', async () => {
     const {
       data: { clients },
-    } = await API.get('/get-all-clients')
+    } = await API.get('/server/clients')
     return clients
   })
 
