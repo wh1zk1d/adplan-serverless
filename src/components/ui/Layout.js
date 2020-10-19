@@ -10,7 +10,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 
 const Header = () => {
-  const { isAuthenticated, user } = useAuth0()
+  const { isAuthenticated } = useAuth0()
 
   return (
     <Navbar bg='dark' variant='dark' expand='lg'>
@@ -35,13 +35,7 @@ const Header = () => {
               </>
             )}
           </Nav>
-          {isAuthenticated ? (
-            <>
-              <img src={user.picture} alt={user.name} height='32' className='mr-3' /> <LogoutBtn />
-            </>
-          ) : (
-            <LoginBtn />
-          )}
+          {isAuthenticated ? <LogoutBtn /> : <LoginBtn />}
         </Navbar.Collapse>
       </Container>
     </Navbar>

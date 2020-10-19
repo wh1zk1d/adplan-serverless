@@ -11,7 +11,7 @@ const AllClients = () => {
   const { isLoading, error, data } = useQuery('fetchClients', async () => {
     const {
       data: { clients },
-    } = await API.get('/server/clients')
+    } = await API.get('/clients')
     return clients
   })
 
@@ -40,14 +40,10 @@ const AllClients = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((client) => (
+            {data.map(client => (
               <tr key={client.id}>
                 <td>
-                  {client.active ? (
-                    <span className='active-yes'>Ja</span>
-                  ) : (
-                    <span className='active-no'>Nein</span>
-                  )}
+                  {client.active ? <span className='active-yes'>Ja</span> : <span className='active-no'>Nein</span>}
                 </td>
                 <td>{client.name}</td>
                 <td>
@@ -58,16 +54,10 @@ const AllClients = () => {
                 </td>
                 <td>{client.spotLength}sek</td>
                 <td>{client.showInFoyer ? 'Ja' : 'Nein'}</td>
-                <td>
-                  {new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(
-                    new Date(client.startDate)
-                  )}
-                </td>
+                <td>{new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(client.startDate))}</td>
                 <td>
                   {client.endDate
-                    ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(
-                        new Date(client.endDate)
-                      )
+                    ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(client.endDate))
                     : 'Unbegrenzt'}
                 </td>
                 <td>{client.costs}€</td>
@@ -86,9 +76,7 @@ const AllClients = () => {
                   )}
                 </td>
                 <td>
-                  <Link
-                    to={{ pathname: `/edit/${client.id}`, state: { client: client } }}
-                    title='Bearbeiten'>
+                  <Link to={{ pathname: `/edit/${client.id}`, state: { client: client } }} title='Bearbeiten'>
                     Bearbeiten
                   </Link>
                 </td>
