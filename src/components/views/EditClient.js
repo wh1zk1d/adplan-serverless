@@ -16,10 +16,16 @@ const EditClient = () => {
   const { id } = useParams()
 
   // Fetch client data
-  const { isLoading, error, data } = useQuery('fetchClient', async () => {
-    const { data } = await API.get(`/clients/${id}`)
-    return data
-  })
+  const { isLoading, error, data } = useQuery(
+    'fetchClient',
+    async () => {
+      const { data } = await API.get(`/clients/${id}`)
+      return data
+    },
+    {
+      cacheTime: 0,
+    }
+  )
 
   const [saved, setSaved] = useState(false)
   const [errorOnSave, setErrorOnSave] = useState(false)
@@ -41,6 +47,7 @@ const EditClient = () => {
             endDate: data.endDate,
             contract: data.contract,
             showInFoyer: data.showInFoyer,
+            active: data.active,
           }}
           onSubmit={async (values, { setSubmitting }) => {
             setErrorOnSave(false)
@@ -108,14 +115,27 @@ const EditClient = () => {
                 </Form.Group>
               </Form.Row>
 
-              <Form.Group controlId='showInFoyer'>
-                <Form.Check
-                  type='checkbox'
-                  label='Im Foyer zeigen'
-                  onChange={handleChange}
-                  value={values.showInFoyer}
-                />
-              </Form.Group>
+              <Form.Row>
+                <Form.Group controlId='showInFoyer' as={Col} md='4'>
+                  <Form.Check
+                    type='checkbox'
+                    label='Im Foyer zeigen'
+                    onChange={handleChange}
+                    checked={values.showInFoyer}
+                    value={values.showInFoyer}
+                  />
+                </Form.Group>
+
+                <Form.Group controlId='active' as={Col} md='4'>
+                  <Form.Check
+                    type='checkbox'
+                    label='Aktiv'
+                    onChange={handleChange}
+                    checked={values.active}
+                    value={values.active}
+                  />
+                </Form.Group>
+              </Form.Row>
 
               <Button variant='primary' type='submit' disabled={isSubmitting} className='my-2'>
                 {isSubmitting ? 'Lade...' : 'Speichern'}
