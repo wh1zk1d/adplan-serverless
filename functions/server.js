@@ -120,7 +120,23 @@ router.put('/clients/:id', async (req, res) => {
     await client.query(q.Update(q.Select('ref', q.Get(q.Match(q.Index('client_by_id'), id))), { data }))
     res.status(200).json({ message: 'Successfully updated user' })
   } catch (error) {
-    console.log(error)
+    res.status(500).json({ message: error.message })
+  }
+})
+
+// DELETE: Delete a client
+router.delete('/clients/:id', async (req, res) => {
+  const id = req.params.id
+
+  const q = faunadb.query
+  const client = new faunadb.Client({
+    secret: process.env.FAUNA_SECRET_KEY,
+  })
+
+  try {
+    await client.query(q.Delete(q.Select('ref', q.Get(q.Match(q.Index('client_by_id'), id)))))
+    res.status(200).json({ message: 'Successfully updated user' })
+  } catch (error) {
     res.status(500).json({ message: error.message })
   }
 })

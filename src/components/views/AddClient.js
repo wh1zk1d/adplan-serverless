@@ -24,8 +24,9 @@ const AddClient = () => {
       endDate: '',
       costs: '',
       contract: '',
+      active: true,
     },
-    onSubmit: async (values) => {
+    onSubmit: async values => {
       setSubmitting(true)
       try {
         await API.post('/clients', JSON.stringify(values))
@@ -47,12 +48,7 @@ const AddClient = () => {
         <Form.Row>
           <Form.Group controlId='name' as={Col} md='4'>
             <Form.Label>Kunde</Form.Label>
-            <Form.Control
-              type='text'
-              placeholder='Name'
-              onChange={formik.handleChange}
-              value={formik.values.name}
-            />
+            <Form.Control type='text' placeholder='Name' onChange={formik.handleChange} value={formik.values.name} />
           </Form.Group>
 
           <Form.Group controlId='coverage' as={Col} md='4'>
@@ -72,6 +68,7 @@ const AddClient = () => {
             <Form.Control
               type='text'
               placeholder='32'
+              inputMode='numeric'
               onChange={formik.handleChange}
               value={formik.values.spotLength}
             />
@@ -83,6 +80,7 @@ const AddClient = () => {
               <Form.Control
                 type='text'
                 placeholder='42,99'
+                inputMode='numeric'
                 onChange={formik.handleChange}
                 value={formik.values.costs}
               />
@@ -96,20 +94,12 @@ const AddClient = () => {
         <Form.Row>
           <Form.Group controlId='startDate' as={Col} md='4'>
             <Form.Label>Startdatum</Form.Label>
-            <Form.Control
-              type='date'
-              onChange={formik.handleChange}
-              value={formik.values.startDate}
-            />
+            <Form.Control type='date' onChange={formik.handleChange} value={formik.values.startDate} />
           </Form.Group>
 
           <Form.Group controlId='endDate' as={Col} md='4'>
             <Form.Label>Enddatum</Form.Label>
-            <Form.Control
-              type='date'
-              onChange={formik.handleChange}
-              value={formik.values.endDate}
-            />
+            <Form.Control type='date' onChange={formik.handleChange} value={formik.values.endDate} />
           </Form.Group>
         </Form.Row>
 
@@ -134,7 +124,7 @@ const AddClient = () => {
           />
         </Form.Group>
 
-        <Button variant='primary' type='submit' disabled={submitting} className='my-2'>
+        <Button variant='primary' type='submit' disabled={submitting} className='my-3'>
           {submitting ? 'Lade...' : 'Speichern'}
         </Button>
 
