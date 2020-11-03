@@ -31,7 +31,7 @@ const AddClient = () => {
     onSubmit: async values => {
       setSubmitting(true)
       try {
-        await API.post('/clients', JSON.stringify(values))
+        await API.post('/client', JSON.stringify(values))
         setError(false)
         setSubmitted(true)
       } catch {

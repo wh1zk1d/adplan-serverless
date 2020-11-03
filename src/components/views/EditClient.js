@@ -21,7 +21,7 @@ const EditClient = () => {
   const { isLoading, error, data } = useQuery(
     'fetchClient',
     async () => {
-      const { data } = await API.get(`/clients/${id}`)
+      const { data } = await API.get(`/client/${id}`)
       return data
     },
     {
@@ -37,7 +37,7 @@ const EditClient = () => {
   const handleDelete = async () => {
     if (window.confirm('Soll der Kunde wirklich gelöscht werden?')) {
       try {
-        await API.delete(`/clients/${id}`)
+        await API.delete(`/client/${id}`)
         setDeleted(true)
         setTimeout(() => {
           history.push('/')
@@ -73,7 +73,7 @@ const EditClient = () => {
             onSubmit={async (values, { setSubmitting }) => {
               setErrorOnSave(false)
               try {
-                await API.put(`/clients/${id}`, JSON.stringify(values))
+                await API.put(`/client/${id}`, JSON.stringify(values))
                 setSubmitting(false)
                 setSaved(true)
               } catch {

@@ -15,7 +15,7 @@ const auth = (req, res, next) => {
   let token = req.headers['authorization']
 
   const handleError = () => {
-    return res.status(403).json({ message: 'Unauthorized' })
+    return res.status(403).json({ error: 'Unauthorized' })
   }
 
   if (!token) {
@@ -36,30 +36,132 @@ const auth = (req, res, next) => {
   }
 }
 
-// Use auth middleware
-router.use(auth)
-
-// Routes
-// GET: all clients
-router.get('/clients', async (req, res) => {
+const getAllClients = async () => {
   const q = faunadb.query
   const client = new faunadb.Client({
     secret: process.env.FAUNA_SECRET_KEY,
   })
 
-  const documents = await client.query(
+  const clientDocs = await client.query(
     q.Map(
       q.Paginate(q.Documents(q.Collection('clients'))),
       q.Lambda(x => q.Get(x))
     )
   )
 
-  const allClients = await documents.data.map(document => document.data)
+  const allClients = await clientDocs.data.map(document => document.data)
+
+  return allClients
+}
+
+// Get weekly clips
+const getClips = async () => {
+  // Current date
+  const today = new Date().toISOString().slice(0, 10)
+
+  // Get week number
+  const q = faunadb.query
+  const client = new faunadb.Client({
+    secret: process.env.FAUNA_SECRET_KEY,
+  })
+
+  const weekDoc = await client.query(
+    q.Map(
+      q.Paginate(q.Documents(q.Collection('week'))),
+      q.Lambda(x => q.Get(x))
+    )
+  )
+
+  const week = await JSON.parse(weekDoc.data.map(document => document.data.weekCount)[0])
+
+  // Get all clients
+  const allClients = await getAllClients()
+
+  // Filter out inactive & not started ones
+  const validClients = allClients.filter(client => {
+    if (!client.active) return false
+
+    if (client.startDate <= today && !client.endDate) {
+      return client
+    } else if (client.startDate <= today && client.endDate > today) {
+      return client
+    } else {
+      return false
+    }
+  })
+
+  // Filter clients for the week
+  // Filter function
+  const filterByWeek = week => {
+    let clients
+
+    if (week === 1) {
+      return validClients
+    }
+
+    if (week === 2) {
+      // 75% & 100%
+      clients = validClients.filter(client => parseInt(client.coverage) > 2)
+
+      // 50%, part of a group and B week
+      clients = [
+        ...clients,
+        validClients.filter(client => client.coverage === '2' && client.isPartOfGroup && client.weekRhythm === 'b'),
+      ]
+
+      return clients.flat()
+    }
+
+    if (week === 3) {
+      // 50%, 75%, 100%
+      clients = validClients.filter(client => {
+        if (client.coverage === '2') {
+          if (!client.isPartOfGroup || (client.isPartOfGroup && client.weekRhythm === 'a')) {
+            return client
+          }
+        }
+
+        if (parseInt(client.coverage) > 2) return client
+
+        return false
+      })
+
+      return clients
+    }
+
+    if (week === 4) {
+      // 100%
+      clients = validClients.filter(client => client.coverage === '4')
+
+      // 50%, part of a group and B week
+      clients = [
+        ...clients,
+        validClients.filter(client => client.coverage === '2' && client.isPartOfGroup && client.weekRhythm === 'b'),
+      ]
+
+      return clients.flat()
+    }
+  }
+
+  const weekClients = filterByWeek(week)
+
+  // TODO: Increment week counter
+
+  return { week, weekClients }
+}
+
+// Use auth middleware
+router.use(auth)
+
+// Routes
+// GET: all clients
+router.get('/client', async (req, res) => {
+  const allClients = await getAllClients()
   res.status(200).json({ clients: allClients })
 })
 
 // GET: single client
-router.get('/clients/:id', async (req, res) => {
+router.get('/client/:id', async (req, res) => {
   const q = faunadb.query
   const client = new faunadb.Client({
     secret: process.env.FAUNA_SECRET_KEY,
@@ -77,12 +179,12 @@ router.get('/clients/:id', async (req, res) => {
 })
 
 // POST: add a client
-router.post('/clients', async (req, res) => {
+router.post('/client', async (req, res) => {
   // Grab data from request body
   let data = req.body
 
   // Add ID
-  data.id = nanoid(6)
+  data.id = nanoid()
 
   // Save user to FaunaDB
   const q = faunadb.query
@@ -105,7 +207,7 @@ router.post('/clients', async (req, res) => {
 })
 
 // PUT: Update a client
-router.put('/clients/:id', async (req, res) => {
+router.put('/client/:id', async (req, res) => {
   // Grab user data from request body
   const data = req.body
   const id = req.params.id
@@ -125,7 +227,7 @@ router.put('/clients/:id', async (req, res) => {
 })
 
 // DELETE: Delete a client
-router.delete('/clients/:id', async (req, res) => {
+router.delete('/client/:id', async (req, res) => {
   const id = req.params.id
 
   const q = faunadb.query
@@ -139,6 +241,12 @@ router.delete('/clients/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
+})
+
+// Get clips for week
+router.get('/clips', async (req, res) => {
+  const { week, weekClients } = await getClips()
+  res.status(200).json({ week: week, clips: weekClients })
 })
 
 // Set base URL
