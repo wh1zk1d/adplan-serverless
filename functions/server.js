@@ -1,6 +1,7 @@
 const faunadb = require('faunadb')
 const serverless = require('serverless-http')
 const { nanoid } = require('nanoid')
+const nodemailer = require('nodemailer')
 const express = require('express')
 const app = express()
 
@@ -150,6 +151,52 @@ const getClips = async () => {
   return { week, weekClients }
 }
 
+// Get current calendar week
+const getCalendarWeek = () => {
+  const today = new Date()
+  const firstDayOfYear = new Date(today.getFullYear(), 0, 1)
+  const pastDaysOfYear = (today - firstDayOfYear) / 86400000
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7)
+}
+
+// Send mail report
+const sendMail = async clients => {
+  const cw = getCalendarWeek()
+
+  let testAccount = await nodemailer.createTestAccount()
+
+  let transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: testAccount.user,
+      pass: testAccount.pass,
+    },
+  })
+
+  const list = clients
+    .map(client => {
+      if (client.foyer) {
+        return `<li>${client.name} (auch im Foyer)</li>`
+      }
+      return `<li>${client.name}</li>`
+    })
+    .join('')
+
+  let info = await transporter.sendMail({
+    from: '"adplan 🍿" <kinowerbung@audicture.de>',
+    to: 'jannik.baranczyk@gmail.com',
+    subject: `Kinowerbung für KW ${cw}`,
+    html: `Hallo, hier die Kinowerbung für KW ${cw}.<br /><br /><ul>${list}</ul>`,
+  })
+
+  console.log('Message sent: %s', info.messageId)
+
+  // Preview only available when sending through an Ethereal account
+  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info))
+}
+
 // Use auth middleware
 router.use(auth)
 
@@ -248,8 +295,17 @@ router.get('/clips', async (req, res) => {
   const { week, weekClients } = await getClips()
 
   // TODO: send mail report
+  const clients = weekClients.map(client => {
+    return { name: client.name, foyer: client.showInFoyer }
+  })
 
-  res.status(200).json({ week: week, clips: weekClients })
+  try {
+    await sendMail(clients)
+  } catch (error) {
+    console.log(error)
+  }
+
+  res.status(200).json({ week: week, clips: clients })
 })
 
 // Set base URL
