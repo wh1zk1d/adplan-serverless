@@ -25,6 +25,8 @@ const AddClient = () => {
       costs: '',
       contract: '',
       active: true,
+      isPartOfGroup: false,
+      weekRhythm: 'a',
     },
     onSubmit: async values => {
       setSubmitting(true)
@@ -61,6 +63,31 @@ const AddClient = () => {
             </Form.Control>
           </Form.Group>
         </Form.Row>
+
+        {formik.values.coverage === '2' ? (
+          <Form.Row>
+            <Form.Group controlId='isPartOfGroup' as={Col} md='4'>
+              <Form.Check
+                type='checkbox'
+                label='Teil einer Clip-Gruppe'
+                onChange={formik.handleChange}
+                value={formik.values.isPartOfGroup}
+              />
+            </Form.Group>
+
+            <Form.Group controlId='weekRhythm' as={Col} md='4'>
+              <Form.Label>A/B Woche (nur bei Clip-Gruppe)</Form.Label>
+              <Form.Control
+                as='select'
+                onChange={formik.handleChange}
+                value={formik.values.weekRhythm}
+                disabled={!formik.values.isPartOfGroup}>
+                <option value='a'>A</option>
+                <option value='b'>B</option>
+              </Form.Control>
+            </Form.Group>
+          </Form.Row>
+        ) : null}
 
         <Form.Row>
           <Form.Group controlId='spotLength' as={Col} md='4'>

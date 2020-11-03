@@ -30,6 +30,7 @@ const AllClients = () => {
               <th>Aktiv</th>
               <th>Kunde</th>
               <th>Abdeckung</th>
+              <th>A/B Woche</th>
               <th>Spotlänge</th>
               <th>Foyer</th>
               <th>Startdatum</th>
@@ -52,6 +53,7 @@ const AllClients = () => {
                   {client.coverage === '3' && '75%'}
                   {client.coverage === '4' && '100%'}
                 </td>
+                <td>{client.weekRhythm ? client.weekRhythm.toUpperCase() : null}</td>
                 <td>{client.spotLength}sek</td>
                 <td>{client.showInFoyer ? 'Ja' : 'Nein'}</td>
                 <td>{new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(client.startDate))}</td>

@@ -67,6 +67,8 @@ const EditClient = () => {
               contract: data.contract,
               showInFoyer: data.showInFoyer,
               active: data.active,
+              isPartOfGroup: data.isPartOfGroup,
+              weekRhythm: data.weekRhythm,
             }}
             onSubmit={async (values, { setSubmitting }) => {
               setErrorOnSave(false)
@@ -97,6 +99,32 @@ const EditClient = () => {
                     </Form.Control>
                   </Form.Group>
                 </Form.Row>
+
+                {values.coverage === '2' ? (
+                  <Form.Row>
+                    <Form.Group controlId='isPartOfGroup' as={Col} md='4'>
+                      <Form.Check
+                        type='checkbox'
+                        label='Teil einer Clip-Gruppe'
+                        onChange={handleChange}
+                        value={values.isPartOfGroup}
+                        checked={values.isPartOfGroup}
+                      />
+                    </Form.Group>
+
+                    <Form.Group controlId='weekRhythm' as={Col} md='4'>
+                      <Form.Label>A/B Woche (nur bei Clip-Gruppe)</Form.Label>
+                      <Form.Control
+                        as='select'
+                        onChange={handleChange}
+                        value={values.weekRhythm}
+                        disabled={!values.isPartOfGroup}>
+                        <option value='a'>A</option>
+                        <option value='b'>B</option>
+                      </Form.Control>
+                    </Form.Group>
+                  </Form.Row>
+                ) : null}
 
                 <Form.Row>
                   <Form.Group controlId='spotLength' as={Col} md='4'>
