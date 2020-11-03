@@ -145,7 +145,7 @@ const getClips = async () => {
 
   const weekClients = filterByWeek(week)
 
-  // TODO: Increment week counter
+  // TODO: increment week counter
 
   return { week, weekClients }
 }
@@ -246,6 +246,9 @@ router.delete('/client/:id', async (req, res) => {
 // Get clips for week
 router.get('/clips', async (req, res) => {
   const { week, weekClients } = await getClips()
+
+  // TODO: send mail report
+
   res.status(200).json({ week: week, clips: weekClients })
 })
 
