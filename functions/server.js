@@ -163,15 +163,13 @@ const getCalendarWeek = () => {
 const sendMail = async clients => {
   const cw = getCalendarWeek()
 
-  let testAccount = await nodemailer.createTestAccount()
-
   let transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
+    host: process.env.SMTP_HOST,
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PW,
     },
   })
 
@@ -188,13 +186,10 @@ const sendMail = async clients => {
     from: '"adplan 🍿" <kinowerbung@audicture.de>',
     to: 'jannik.baranczyk@gmail.com',
     subject: `Kinowerbung für KW ${cw}`,
-    html: `Hallo, hier die Kinowerbung für KW ${cw}.<br /><br /><ul>${list}</ul>`,
+    html: `<h2>Kinowerbung KW ${cw}</h2><ul>${list}</ul>`,
   })
 
   console.log('Message sent: %s', info.messageId)
-
-  // Preview only available when sending through an Ethereal account
-  console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info))
 }
 
 // Use auth middleware
@@ -294,7 +289,6 @@ router.delete('/client/:id', async (req, res) => {
 router.get('/clips', async (req, res) => {
   const { week, weekClients } = await getClips()
 
-  // TODO: send mail report
   const clients = weekClients.map(client => {
     return { name: client.name, foyer: client.showInFoyer }
   })
