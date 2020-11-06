@@ -25,7 +25,7 @@ const AllClients = () => {
     setSubmitting(true)
     setErrorReport(false)
     try {
-      await API.get('/clips')
+      await API.get('/clips?manual=true')
       setSentReport(true)
       setTimeout(() => {
         setSentReport(false)

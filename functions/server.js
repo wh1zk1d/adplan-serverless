@@ -74,7 +74,7 @@ const getMailRecipients = async () => {
 }
 
 // Get weekly clips
-const getClips = async () => {
+const getClips = async manual => {
   // Current date
   const today = new Date().toISOString().slice(0, 10)
 
@@ -164,23 +164,27 @@ const getClips = async () => {
 
   const weekClients = filterByWeek(week)
 
-  // Increment week counter
-  let newWeek
+  if (!manual) {
+    // Increment week counter
+    let newWeek
 
-  if (week === 4) {
-    newWeek = 1
+    if (week === 4) {
+      newWeek = 1
+    } else {
+      newWeek = week + 1
+    }
+
+    try {
+      await client.query(
+        q.Update(q.Ref(q.Collection('settings'), '281194700236390917'), { data: { weekCount: newWeek.toString() } })
+      )
+      return { week, weekClients }
+    } catch (error) {
+      console.log(error.toString())
+      return false
+    }
   } else {
-    newWeek = week + 1
-  }
-
-  try {
-    await client.query(
-      q.Update(q.Ref(q.Collection('settings'), '281194700236390917'), { data: { weekCount: newWeek.toString() } })
-    )
     return { week, weekClients }
-  } catch (error) {
-    console.log(error.toString())
-    return false
   }
 }
 
@@ -321,7 +325,10 @@ router.delete('/client/:id', async (req, res) => {
 
 // Get clips for week
 router.get('/clips', async (req, res) => {
-  const { week, weekClients } = await getClips()
+  const isManualRequest = req.query.manual || false
+  console.log(isManualRequest)
+
+  const { week, weekClients } = await getClips(isManualRequest)
 
   const clients = weekClients.map(client => {
     return { name: client.name, foyer: client.showInFoyer }
