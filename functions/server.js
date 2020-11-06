@@ -55,6 +55,24 @@ const getAllClients = async () => {
   return allClients
 }
 
+const getMailRecipients = async () => {
+  const q = faunadb.query
+  const client = new faunadb.Client({
+    secret: process.env.FAUNA_SECRET_KEY,
+  })
+
+  const settings = await client.query(
+    q.Map(
+      q.Paginate(q.Documents(q.Collection('settings'))),
+      q.Lambda(x => q.Get(x))
+    )
+  )
+
+  const recipients = await settings.data.map(document => document.data.recipients)[0]
+
+  return recipients
+}
+
 // Get weekly clips
 const getClips = async () => {
   // Current date
@@ -66,14 +84,14 @@ const getClips = async () => {
     secret: process.env.FAUNA_SECRET_KEY,
   })
 
-  const weekDoc = await client.query(
+  const settings = await client.query(
     q.Map(
-      q.Paginate(q.Documents(q.Collection('week'))),
+      q.Paginate(q.Documents(q.Collection('settings'))),
       q.Lambda(x => q.Get(x))
     )
   )
 
-  const week = await JSON.parse(weekDoc.data.map(document => document.data.weekCount)[0])
+  const week = await JSON.parse(settings.data.map(document => document.data.weekCount)[0])
 
   // Get all clients
   const allClients = await getAllClients()
@@ -146,9 +164,24 @@ const getClips = async () => {
 
   const weekClients = filterByWeek(week)
 
-  // TODO: increment week counter
+  // Increment week counter
+  let newWeek
 
-  return { week, weekClients }
+  if (week === 4) {
+    newWeek = 1
+  } else {
+    newWeek = week + 1
+  }
+
+  try {
+    await client.query(
+      q.Update(q.Ref(q.Collection('settings'), '281194700236390917'), { data: { weekCount: newWeek.toString() } })
+    )
+    return { week, weekClients }
+  } catch (error) {
+    console.log(error.toString())
+    return false
+  }
 }
 
 // Get current calendar week
@@ -162,6 +195,7 @@ const getCalendarWeek = () => {
 // Send mail report
 const sendMail = async clients => {
   const cw = getCalendarWeek()
+  const recipients = await getMailRecipients()
 
   let transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -184,7 +218,7 @@ const sendMail = async clients => {
 
   let info = await transporter.sendMail({
     from: '"adplan 🍿" <kinowerbung@audicture.de>',
-    to: 'jannik.baranczyk@gmail.com',
+    to: recipients.join(','),
     subject: `Kinowerbung für KW ${cw}`,
     html: `<h2>Kinowerbung KW ${cw}</h2><ul>${list}</ul>`,
   })
@@ -296,10 +330,41 @@ router.get('/clips', async (req, res) => {
   try {
     await sendMail(clients)
   } catch (error) {
-    console.log(error)
+    return res.status(500).json({ error: error.toString() })
   }
 
   res.status(200).json({ week: week, clips: clients })
+})
+
+// Get all mail recipients
+router.get('/recipient', async (req, res) => {
+  try {
+    const recipients = await getMailRecipients()
+    res.status(200).json({ recipients: recipients })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+
+// Update mail recipients
+router.put('/recipient', async (req, res) => {
+  const data = req.body
+
+  if (!data) {
+    return res.status(400).json({ msg: 'Missing body' })
+  }
+
+  const q = faunadb.query
+  const client = new faunadb.Client({
+    secret: process.env.FAUNA_SECRET_KEY,
+  })
+
+  try {
+    await client.query(q.Update(q.Ref(q.Collection('settings'), '281194700236390917'), { data: { recipients: data } }))
+    res.status(200).json({ msg: 'Updated recipients' })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
 })
 
 // Set base URL

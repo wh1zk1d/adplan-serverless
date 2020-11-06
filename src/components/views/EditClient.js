@@ -72,6 +72,7 @@ const EditClient = () => {
             }}
             onSubmit={async (values, { setSubmitting }) => {
               setErrorOnSave(false)
+              setSubmitting(true)
               try {
                 await API.put(`/client/${id}`, JSON.stringify(values))
                 setSubmitting(false)
