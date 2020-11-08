@@ -66,6 +66,7 @@ const EditClient = () => {
               endDate: data.endDate,
               contract: data.contract,
               showInFoyer: data.showInFoyer,
+              onlyFoyer: data.onlyFoyer,
               active: data.active,
               isPartOfGroup: data.isPartOfGroup,
               weekRhythm: data.weekRhythm,
@@ -184,10 +185,20 @@ const EditClient = () => {
                   <Form.Group controlId='showInFoyer' as={Col} md='4'>
                     <Form.Check
                       type='checkbox'
-                      label='Im Foyer zeigen'
+                      label='Auch im Foyer zeigen'
                       onChange={handleChange}
                       checked={values.showInFoyer}
                       value={values.showInFoyer}
+                    />
+                  </Form.Group>
+
+                  <Form.Group controlId='onlyFoyer' as={Col} md='4'>
+                    <Form.Check
+                      type='checkbox'
+                      label='Nur Foyer'
+                      onChange={handleChange}
+                      checked={values.onlyFoyer}
+                      value={values.onlyFoyer}
                     />
                   </Form.Group>
 

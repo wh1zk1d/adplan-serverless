@@ -212,6 +212,7 @@ const sendMail = async clients => {
   })
 
   const list = clients
+    .filter(client => !client.onlyFoyer)
     .map(client => {
       if (client.foyer) {
         return `<li>${client.name} (auch im Foyer)</li>`
@@ -220,11 +221,26 @@ const sendMail = async clients => {
     })
     .join('')
 
+  const foyerList = clients
+    .filter(client => client.onlyFoyer)
+    .map(client => `<li>${client.name}</li>`)
+    .join('')
+
+  let recipient
+
+  if (process.env.MODE === 'dev') {
+    recipient = 'jannik.baranczyk@gmail.com'
+  } else {
+    recipient = recipients.join(',')
+  }
+
   let info = await transporter.sendMail({
     from: '"adplan 🍿" <kinowerbung@audicture.de>',
-    to: recipients.join(','),
+    to: recipient,
     subject: `Kinowerbung für KW ${cw}`,
-    html: `<h2>Kinowerbung KW ${cw}</h2><ul>${list}</ul>`,
+    html: `<h2>Kinowerbung KW ${cw}</h2><ul>${list}</ul><br /><h3>Nur Foyer</h3> ${
+      foyerList.length > 0 ? `<ul>${foyerList}</ul>` : 'Keine'
+    }`,
   })
 
   console.log('Message sent: %s', info.messageId)
@@ -331,7 +347,7 @@ router.get('/clips', async (req, res) => {
   const { week, weekClients } = await getClips(isManualRequest)
 
   const clients = weekClients.map(client => {
-    return { name: client.name, foyer: client.showInFoyer }
+    return { name: client.name, foyer: client.showInFoyer, onlyFoyer: client.onlyFoyer }
   })
 
   try {

@@ -20,6 +20,7 @@ const AddClient = () => {
       coverage: '1',
       spotLength: '',
       showInFoyer: false,
+      onlyFoyer: false,
       startDate: '',
       endDate: '',
       costs: '',
@@ -142,14 +143,27 @@ const AddClient = () => {
           </Form.Group>
         </Form.Row>
 
-        <Form.Group controlId='showInFoyer'>
-          <Form.Check
-            type='checkbox'
-            label='Im Foyer zeigen'
-            onChange={formik.handleChange}
-            value={formik.values.showInFoyer}
-          />
-        </Form.Group>
+        <Form.Row>
+          <Form.Group controlId='showInFoyer' as={Col} md='4'>
+            <Form.Check
+              type='checkbox'
+              label='Auch im Foyer zeigen'
+              onChange={formik.handleChange}
+              checked={formik.values.showInFoyer}
+              value={formik.values.showInFoyer}
+            />
+          </Form.Group>
+
+          <Form.Group controlId='onlyFoyer' as={Col} md='4'>
+            <Form.Check
+              type='checkbox'
+              label='Nur Foyer'
+              onChange={formik.handleChange}
+              checked={formik.values.onlyFoyer}
+              value={formik.values.onlyFoyer}
+            />
+          </Form.Group>
+        </Form.Row>
 
         <Button variant='primary' type='submit' disabled={submitting} className='my-3'>
           {submitting ? 'Lade...' : 'Speichern'}

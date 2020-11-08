@@ -100,7 +100,15 @@ const AllClients = () => {
                       : null}
                   </td>
                   <td>{client.spotLength}sek</td>
-                  <td>{client.showInFoyer ? 'Ja' : 'Nein'}</td>
+                  <td>
+                    {client.showInFoyer && client.onlyFoyer ? (
+                      <span class='text-danger'>Nur eine Option wählbar</span>
+                    ) : client.showInFoyer ? (
+                      'Auch Foyer'
+                    ) : (
+                      client.onlyFoyer && 'Nur Foyer'
+                    )}
+                  </td>
                   <td>
                     {new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(client.startDate))}
                   </td>
