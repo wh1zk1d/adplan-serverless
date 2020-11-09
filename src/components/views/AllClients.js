@@ -87,7 +87,7 @@ const AllClients = () => {
                   Abdeckung
                 </th>
                 <th onClick={() => requestSort('weekRhythm')} className={getClassNamesFor('weekRhythm')}>
-                  A/B Woche
+                  Woche
                 </th>
                 <th onClick={() => requestSort('spotLength')} className={getClassNamesFor('spotLength')}>
                   Spotlänge
