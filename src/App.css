@@ -20,3 +20,18 @@
   left: 0;
   right: 0;
 }
+
+/* Table sorting stuff */
+th {
+  cursor: pointer;
+}
+
+.ascending:after {
+  content: '\2191';
+  padding-left: 6px;
+}
+
+.descending:after {
+  content: '\2193';
+  padding-left: 6px;
+}

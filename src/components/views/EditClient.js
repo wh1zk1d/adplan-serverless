@@ -182,7 +182,7 @@ const EditClient = () => {
                 </Form.Row>
 
                 <Form.Row>
-                  <Form.Group controlId='showInFoyer' as={Col} md='4'>
+                  <Form.Group controlId='showInFoyer' as={Col} md='3'>
                     <Form.Check
                       type='checkbox'
                       label='Auch im Foyer zeigen'
@@ -192,7 +192,7 @@ const EditClient = () => {
                     />
                   </Form.Group>
 
-                  <Form.Group controlId='onlyFoyer' as={Col} md='4'>
+                  <Form.Group controlId='onlyFoyer' as={Col} md='3'>
                     <Form.Check
                       type='checkbox'
                       label='Nur Foyer'
@@ -202,7 +202,7 @@ const EditClient = () => {
                     />
                   </Form.Group>
 
-                  <Form.Group controlId='active' as={Col} md='4'>
+                  <Form.Group controlId='active' as={Col} md='3'>
                     <Form.Check
                       type='checkbox'
                       label='Aktiv'

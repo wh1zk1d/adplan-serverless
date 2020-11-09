@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import { Link } from 'react-router-dom'
+import useSortableData from '../../hooks/useSortableData'
 import API from '../../utils/api'
 
 import Headline from '../ui/Headline'
@@ -20,6 +21,14 @@ const AllClients = () => {
     } = await API.get('/client')
     return clients
   })
+
+  const { items, requestSort, sortConfig } = useSortableData(data)
+  const getClassNamesFor = name => {
+    if (!sortConfig) {
+      return
+    }
+    return sortConfig.key === name ? sortConfig.direction : undefined
+  }
 
   const triggerReport = async () => {
     setSubmitting(true)
@@ -68,21 +77,37 @@ const AllClients = () => {
           <Table striped bordered hover responsive>
             <thead>
               <tr>
-                <th>Aktiv</th>
-                <th>Kunde</th>
-                <th>Abdeckung</th>
-                <th>A/B Woche</th>
-                <th>Spotlänge</th>
+                <th onClick={() => requestSort('active')} className={getClassNamesFor('active')}>
+                  Aktiv
+                </th>
+                <th onClick={() => requestSort('name')} className={getClassNamesFor('name')}>
+                  Kunde
+                </th>
+                <th onClick={() => requestSort('coverage')} className={getClassNamesFor('coverage')}>
+                  Abdeckung
+                </th>
+                <th onClick={() => requestSort('weekRhythm')} className={getClassNamesFor('weekRhythm')}>
+                  A/B Woche
+                </th>
+                <th onClick={() => requestSort('spotLength')} className={getClassNamesFor('spotLength')}>
+                  Spotlänge
+                </th>
                 <th>Foyer</th>
-                <th>Startdatum</th>
-                <th>Enddatum</th>
-                <th>Kosten</th>
+                <th onClick={() => requestSort('startDate')} className={getClassNamesFor('startDate')}>
+                  Startdatum
+                </th>
+                <th onClick={() => requestSort('endDate')} className={getClassNamesFor('endDate')}>
+                  Enddatum
+                </th>
+                <th onClick={() => requestSort('costs')} className={getClassNamesFor('costs')}>
+                  Kosten
+                </th>
                 <th>Vertrag</th>
                 <th>Aktionen</th>
               </tr>
             </thead>
             <tbody>
-              {data.map(client => (
+              {items.map(client => (
                 <tr key={client.id}>
                   <td>
                     {client.active ? <span className='active-yes'>Ja</span> : <span className='active-no'>Nein</span>}
