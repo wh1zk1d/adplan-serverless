@@ -58,7 +58,13 @@ const AllClients = () => {
         'Lade Kunden...'
       ) : (
         <div>
-          <Button variant='primary' size='sm' className='mb-4' disabled={submitting} onClick={triggerReport}>
+          <Button
+            variant='primary'
+            size='sm'
+            className='mb-4'
+            disabled={submitting}
+            onClick={triggerReport}
+          >
             {submitting ? 'Wird gesendet' : 'Mailreport senden'}
           </Button>
 
@@ -83,17 +89,29 @@ const AllClients = () => {
                 <th onClick={() => requestSort('name')} className={getClassNamesFor('name')}>
                   Kunde
                 </th>
-                <th onClick={() => requestSort('coverage')} className={getClassNamesFor('coverage')}>
+                <th
+                  onClick={() => requestSort('coverage')}
+                  className={getClassNamesFor('coverage')}
+                >
                   Abdeckung
                 </th>
-                <th onClick={() => requestSort('weekRhythm')} className={getClassNamesFor('weekRhythm')}>
+                <th
+                  onClick={() => requestSort('weekRhythm')}
+                  className={getClassNamesFor('weekRhythm')}
+                >
                   Woche
                 </th>
-                <th onClick={() => requestSort('spotLength')} className={getClassNamesFor('spotLength')}>
+                <th
+                  onClick={() => requestSort('spotLength')}
+                  className={getClassNamesFor('spotLength')}
+                >
                   Spotlänge
                 </th>
                 <th>Foyer</th>
-                <th onClick={() => requestSort('startDate')} className={getClassNamesFor('startDate')}>
+                <th
+                  onClick={() => requestSort('startDate')}
+                  className={getClassNamesFor('startDate')}
+                >
                   Startdatum
                 </th>
                 <th onClick={() => requestSort('endDate')} className={getClassNamesFor('endDate')}>
@@ -110,7 +128,11 @@ const AllClients = () => {
               {items.map(client => (
                 <tr key={client.id}>
                   <td>
-                    {client.active ? <span className='active-yes'>Ja</span> : <span className='active-no'>Nein</span>}
+                    {client.active ? (
+                      <span className='active-yes'>Ja</span>
+                    ) : (
+                      <span className='active-no'>Nein</span>
+                    )}
                   </td>
                   <td>{client.name}</td>
                   <td>
@@ -135,11 +157,17 @@ const AllClients = () => {
                     )}
                   </td>
                   <td>
-                    {new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(client.startDate))}
+                    {client.startDate
+                      ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(
+                          new Date(client.startDate)
+                        )
+                      : '–'}
                   </td>
                   <td>
                     {client.endDate
-                      ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(client.endDate))
+                      ? new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(
+                          new Date(client.endDate)
+                        )
                       : 'Unbegrenzt'}
                   </td>
                   <td>{client.costs}€</td>
@@ -150,7 +178,8 @@ const AllClients = () => {
                         target='_blank'
                         rel='noopener noreferrer'
                         title='Vertrag anzeigen'
-                        className='underdotted'>
+                        className='underdotted'
+                      >
                         Anzeigen
                       </a>
                     ) : (
@@ -158,7 +187,10 @@ const AllClients = () => {
                     )}
                   </td>
                   <td>
-                    <Link to={{ pathname: `/edit/${client.id}`, state: { client: client } }} title='Bearbeiten'>
+                    <Link
+                      to={{ pathname: `/edit/${client.id}`, state: { client: client } }}
+                      title='Bearbeiten'
+                    >
                       Bearbeiten
                     </Link>
                   </td>
