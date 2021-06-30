@@ -4,6 +4,7 @@ const { nanoid } = require('nanoid')
 const nodemailer = require('nodemailer')
 const express = require('express')
 const app = express()
+const { DateTime } = require('luxon')
 
 // Enable JSON and URL encoded body parsing
 app.use(express.json())
@@ -115,7 +116,15 @@ const getClips = async manual => {
     let clients
 
     if (week === 1) {
-      return validClients
+      clients = validClients.filter(client => {
+        if (client.isPartOfGroup && client.weekRhythm === 'b') {
+          return false
+        }
+
+        return client
+      })
+
+      return clients
     }
 
     if (week === 2) {
@@ -125,7 +134,9 @@ const getClips = async manual => {
       // 50%, part of a group and B week
       clients = [
         ...clients,
-        validClients.filter(client => client.coverage === '2' && client.isPartOfGroup && client.weekRhythm === 'b'),
+        validClients.filter(
+          client => client.coverage === '2' && client.isPartOfGroup && client.weekRhythm === 'b'
+        ),
       ]
 
       return clients.flat()
@@ -155,7 +166,9 @@ const getClips = async manual => {
       // 50%, part of a group and B week
       clients = [
         ...clients,
-        validClients.filter(client => client.coverage === '2' && client.isPartOfGroup && client.weekRhythm === 'b'),
+        validClients.filter(
+          client => client.coverage === '2' && client.isPartOfGroup && client.weekRhythm === 'b'
+        ),
       ]
 
       return clients.flat()
@@ -176,7 +189,9 @@ const getClips = async manual => {
 
     try {
       await client.query(
-        q.Update(q.Ref(q.Collection('settings'), '281194700236390917'), { data: { weekCount: newWeek.toString() } })
+        q.Update(q.Ref(q.Collection('settings'), '281194700236390917'), {
+          data: { weekCount: newWeek.toString() },
+        })
       )
       return { week, weekClients }
     } catch (error) {
@@ -190,10 +205,12 @@ const getClips = async manual => {
 
 // Get current calendar week
 const getCalendarWeek = () => {
-  const today = new Date()
-  const firstDayOfYear = new Date(today.getFullYear(), 0, 1)
-  const pastDaysOfYear = (today - firstDayOfYear) / 86400000
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7)
+  // const today = new Date()
+  // const firstDayOfYear = new Date(today.getFullYear(), 0, 1)
+  // const pastDaysOfYear = (today - firstDayOfYear) / 86400000
+  // return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7)
+  const weekNumber = DateTime.now().weekNumber
+  return weekNumber
 }
 
 // Send mail report
@@ -315,7 +332,9 @@ router.put('/client/:id', async (req, res) => {
   })
 
   try {
-    await client.query(q.Update(q.Select('ref', q.Get(q.Match(q.Index('client_by_id'), id))), { data }))
+    await client.query(
+      q.Update(q.Select('ref', q.Get(q.Match(q.Index('client_by_id'), id))), { data })
+    )
     res.status(200).json({ message: 'Successfully updated user' })
   } catch (error) {
     res.status(500).json({ message: error.message })
@@ -342,7 +361,6 @@ router.delete('/client/:id', async (req, res) => {
 // Get clips for week
 router.get('/clips', async (req, res) => {
   const isManualRequest = req.query.manual || false
-  console.log(isManualRequest)
 
   const { week, weekClients } = await getClips(isManualRequest)
 
@@ -383,7 +401,11 @@ router.put('/recipient', async (req, res) => {
   })
 
   try {
-    await client.query(q.Update(q.Ref(q.Collection('settings'), '281194700236390917'), { data: { recipients: data } }))
+    await client.query(
+      q.Update(q.Ref(q.Collection('settings'), '281194700236390917'), {
+        data: { recipients: data },
+      })
+    )
     res.status(200).json({ msg: 'Updated recipients' })
   } catch (error) {
     res.status(500).json({ message: error.message })
